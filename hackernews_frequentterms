@@ -1,0 +1,55 @@
+#Load Libraries
+library(tidyverse)
+library(tm)
+library(wordcloud)
+
+#Load Cleaned Dataset
+library(readr)
+MIGHTYHIVEANALYSIS <- read_csv("~/Documents/MIGHTYHIVEANALYSIS.csv")
+
+#Create Corpus
+mightyhive_corpus <- Corpus(VectorSource(MIGHTYHIVEANALYSIS))
+
+#Perform Transformations
+
+#Convert Text to Lowercase
+mightyhive_corpus <- tm_map (mightyhive_corpus, tolower)
+#Remove Stopwords
+mightyhive_corpus <- tm_map (mightyhive_corpus, removeWords, stopwords("english"))
+#Remove Numbers
+mightyhive_corpus <- tm_map (mightyhive_corpus, removeNumbers)
+#Stem Text
+mightyhive_corpus <- tm_map (mightyhive_corpus, stemDocument)
+#Remove Punctuation
+mightyhive_corpus <- tm_map (mightyhive_corpus, removePunctuation)
+#Strip Whitespace
+mightyhive_corpus <- tm_map (mightyhive_corpus, stripWhitespace)
+
+#Create DTM
+mightyhive_corpus <- tm_map(mightyhive_corpus, PlainTextDocument)
+mightyhive_corpus <- Corpus(VectorSource(mightyhive_corpus))
+mightyhive_DTM <- DocumentTermMatrix(mightyhive_corpus)
+
+dim(mightyhive_DTM)
+
+#Find Frequent Words 
+
+#Define Frequency Variables
+min_freq <- 15
+term_freq <- colSums(as.matrix(mightyhive_DTM))
+term_freq <- subset(term_freq, term_freq >= min_freq)
+freq_words_df <- data.frame(term = names(term_freq), freq = term_freq)
+findFreqTerms(mightyhive_DTM, lowfreq = min_freq)
+
+ggplot(data = freq_words_df, aes(x = reorder(term, freq), y = freq, colour = freq)) + 
+  geom_bar(stat="identity") + 
+  coord_flip() +
+  ggtitle("Frequency of Most-Used Terms") +
+  xlab("Terms") +
+  ylab("Frequency") + 
+  theme(plot.title = element_text(size=14, face="bold", margin = margin(10, 0, 10, 0)), 
+        axis.title.x = element_text(face="bold", size = 12),
+        axis.title.y = element_text(face="bold", size = 12),
+        axis.text.x = element_text(face="bold", size=10),
+        axis.text.y = element_text(face="bold", size=10))
+
