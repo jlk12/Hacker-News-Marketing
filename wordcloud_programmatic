@@ -1,0 +1,31 @@
+#Load Libraries
+library(tidyverse)
+library(tm)
+library(wordcloud)
+
+#Load Cleaned Dataset
+library(readr)
+programmatic2017 <- read_csv("~/Documents/programmatic2017.csv")
+View(programmatic2017)
+
+#Create Corpus
+programmatic_corpus <- Corpus(VectorSource(programmatic2017))
+
+#Perform Transformations
+
+#Convert Text to Lowercase
+programmatic_corpus <- tm_map (programmatic_corpus, tolower)
+#Remove Stopwords
+programmatic_corpus <- tm_map (programmatic_corpus, removeWords, stopwords("english"))
+#Remove Numbers
+programmatic_corpus <- tm_map (programmatic_corpus, removeNumbers)
+#Stem Text
+podcast_corpus <- tm_map (podcast_corpus, stemDocument)
+#Remove Punctuation
+programmatic_corpus <- tm_map (programmatic_corpus, removePunctuation)
+#Strip Whitespace
+programmatic_corpus <- tm_map (programmatic_corpus, stripWhitespace)
+str(programmatic_corpus)
+
+# Wordcloud
+wordcloud (programmatic_corpus, scale = c(2, 0.5), colors = brewer.pal(8, "Paired"),  random.color = TRUE, random.order = FALSE, max.words = 250)
